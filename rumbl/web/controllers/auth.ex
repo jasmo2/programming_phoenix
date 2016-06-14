@@ -1,6 +1,5 @@
 defmodule Rumbl.Auth do
   import Plug.Conn
-
   def init(opts) do
     Keyword.fetch!(opts, :repo)
   end
@@ -9,6 +8,19 @@ defmodule Rumbl.Auth do
     user_id = get_session(conn, :user_id)
     user    = user_id && repo.get(Rumbl.User,  user_id)
     assign(conn, :current_user, user)
+  end
+
+  import Phoenix.Controller
+  alias Rumbl.Router.Helpers
+  def authenticate_user(conn) do
+    if conn.assigns.current_user do
+      conn
+    else
+      conn
+      |> put_flash(:error, "You must be logged in to access that page")
+      |> redirect(to: Helpers.page_path(conn, :index))
+      |> halt()
+    end
   end
 
   def login(conn, user) do
