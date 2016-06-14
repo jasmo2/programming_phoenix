@@ -31,8 +31,9 @@ defmodule Rumbl.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [{:phoenix, "~> 1.1.6"},
-     {:mongodb_ecto, ">= 0.0.0"},
-     {:phoenix_ecto, "~> 2.0"},
+     {:mongodb_ecto, github: "michalmuskala/mongodb_ecto", ref: "f8ddfaf"},
+     {:ecto, "~> 1.0.7", override: true},
+     {:phoenix_ecto, "~> 1.2.0"},
      {:phoenix_html, "~> 2.4"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:gettext, "~> 0.9"},
