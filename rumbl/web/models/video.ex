@@ -1,6 +1,9 @@
 defmodule Rumbl.Video do
   use Rumbl.Web, :model
 
+  import Ecto.Changeset
+
+
   embedded_schema  do
     field :url, :string
     field :title, :string
