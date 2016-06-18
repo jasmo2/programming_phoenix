@@ -11,6 +11,13 @@ config :logger, level: :warn
 
 # Configure your database
 config :rumbl, Rumbl.Repo,
-  adapter: Mongo.Ecto,
+  adapter: Ecto.Adapters.Postgres,
+  username: "postgres",
+  password: "postgres",
   database: "rumbl_test",
-  pool_size: 1
+  hostname: "localhost",
+  pool: Ecto.Adapters.SQL.Sandbox
+
+config :comeonin,
+  bcrypt_log_rounds: 4,
+  pbkdf2_rounds: 1
