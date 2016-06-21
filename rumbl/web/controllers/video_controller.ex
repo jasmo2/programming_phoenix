@@ -1,4 +1,3 @@
-require IEx
 defmodule Rumbl.VideoController do
   use Rumbl.Web, :controller
   alias Rumbl.Video
@@ -23,8 +22,6 @@ defmodule Rumbl.VideoController do
   end
 
   def create(conn, %{"video" => video_params},user) do
-    IEx.pry
-
     changeset = Video.changeset(%Video{}, video_params)
 
     case Repo.insert(changeset) do
