@@ -3,14 +3,14 @@ defmodule Rumbl.User do
   import Ecto.Changeset
 
   @primary_key {:id, :binary_id, autogenerate: true}
-  @foreign_key_type :binary_id
+
 
   schema "users" do
       field :name, :string
       field :username, :string
       field :password, :string, virtual: true
       field :password_hash, :string
-      embeds_many :videos, Rumbl.Video
+      has_many :videos, Rumbl.Video
 
       timestamps
     end
