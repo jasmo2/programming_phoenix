@@ -12,7 +12,7 @@ config :logger, level: :warn
 # Configure your database
 config :rumbl, Rumbl.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
+  username: "jasmo2",
   password: "postgres",
   database: "rumbl_test",
   hostname: "localhost",
