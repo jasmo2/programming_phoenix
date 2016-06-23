@@ -2,16 +2,12 @@ defmodule Rumbl.Web do
   @moduledoc """
   A module that keeps using definitions for controllers,
   views and so on.
-
   This can be used in your application as:
-
       use Rumbl.Web, :controller
       use Rumbl.Web, :view
-
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused
   on imports, uses and aliases.
-
   Do NOT define functions inside the quoted expressions
   below.
   """
@@ -23,9 +19,6 @@ defmodule Rumbl.Web do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query, only: [from: 1, from: 2]
-
-      @primary_key {:id, :binary_id, autogenerate: true}
-      @foreign_key_type :binary_id
     end
   end
 
@@ -39,7 +32,7 @@ defmodule Rumbl.Web do
 
       import Rumbl.Router.Helpers
       import Rumbl.Gettext
-      import Rumbl.Auth, only: [authenticate_user: 2] # new import
+      import Rumbl.Auth, only: [authenticate_user: 2, current_user: 1]
     end
   end
 
@@ -63,7 +56,7 @@ defmodule Rumbl.Web do
     quote do
       use Phoenix.Router
 
-      import Rumbl.Auth, only: [authenticate_user: 2] # New import
+      import Rumbl.Auth, only: [authenticate_user: 2]
     end
   end
 
