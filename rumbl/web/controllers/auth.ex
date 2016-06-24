@@ -4,6 +4,7 @@ defmodule Rumbl.Auth do
   import Phoenix.Controller
   alias Rumbl.Router.Helpers
   alias Rumbl.User
+
   def init(opts) do
     Keyword.fetch!(opts, :repo)
   end
@@ -25,7 +26,7 @@ defmodule Rumbl.Auth do
   end
 
   def authenticate_user(conn, _opts) do
-    if conn.assigns.current_user do
+    if current_user(conn) do
       conn
     else
       conn
@@ -35,30 +36,34 @@ defmodule Rumbl.Auth do
     end
   end
 
-  def login(conn, user) do
+  def login_by_username_and_pass(conn, username, given_pass, opts) do
+    repo = Keyword.fetch!(opts, :repo)
+    user = repo.get_by(User, username: username)
+    cond do
+      user && checkpw(given_pass, user.password_hash) ->
+        {:ok, login(conn, user)}
+      user ->
+        {:error, :unauthorized, conn}
+      true ->
+        dummy_checkpw()
+        {:error, :not_found, conn}
+    end
+  end
+
+  def login(conn, user = %User{id: user_id}) do
     conn
     |> assign(:current_user, user)
-    |> put_session(:user_id, user.id)
+    |> put_session(:user_id, user_id)
     |> configure_session(renew: true)
   end
 
   def logout(conn) do
-    configure_session(conn, drop: true)
+    conn
+    |> delete_assign(:current_user)
+    |> delete_session(:user_id)
   end
 
-  def login_by_username_and_pass(conn, username, given_pass, opts) do
-      repo = Keyword.fetch!(opts, :repo)
-      user = repo.get_by(Rumbl.User, username: username)
-
-      cond do
-
-        user && checkpw(given_pass, user.password_hash) ->
-          {:ok, login(conn, user)}
-        user ->
-          {:error, :unauthorized, conn}
-        true ->
-          dummy_checkpw()
-          {:error, :not_found, conn}
-      end
+  defp delete_assign(conn, key) do
+    Map.update!(conn, :assigns, &Map.delete(&1, key))
   end
 end
