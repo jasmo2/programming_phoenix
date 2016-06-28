@@ -2,7 +2,7 @@ defmodule Rumbl.User do
   use Rumbl.Web, :model
   import Ecto.Changeset
 
-  @primary_key {:id, :binary_id, autogenerate: true}
+  # @primary_key {:id, :binary_id, autogenerate: true}
 
 
   schema "users" do
