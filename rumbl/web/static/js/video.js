@@ -15,8 +15,12 @@ let Video = {
     let msgContainer = document.getElementById("msg-container")
     let msgInput     = document.getElementById("msg-input")
     let postButton   = document.getElementById("msg-submit")
-    let vidChannel   = socket.channel("videos:" + videoId)
-    // TODO join the vidChannel
+    let vidChannel   = socket.channel("videos_c:" + videoId)
+
+    // join to VideoChannel
+    vidChannel.join()
+      .receive("ok", resp => console.log("joined video channel", resp ))
+      .receive("error", resp => console.log("error: ", resp))
   }
 }
 export default Video
