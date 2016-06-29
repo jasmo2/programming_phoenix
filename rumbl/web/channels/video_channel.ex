@@ -3,10 +3,10 @@ defmodule Rumbl.VideoChannel do
   def join("videos_c:" <> video_id,  _params, socket) do
     {:ok, socket}
   end
-  def handle_info(message, socket) do
+  def handle_info("new_annotation", params, socket) do
     broadcast!(socket, "new_annotation", %{
-      user: %{username: "anon"}
-      body: params["body"]
+      user: %{username: "anon"},
+      body: params["body"],
       at: params["at"]
     })
     {:reply, :ok, socket}
