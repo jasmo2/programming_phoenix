@@ -1,5 +1,6 @@
 defmodule Rumbl.UserSocket do
   use Phoenix.Socket
+  require IEx
   # line below means 2-weeks; 7-days; 24-hours; 60-minutes; 60-seconds
   @max_age 2 * 7 * 24 * 60 * 60
 
@@ -32,19 +33,5 @@ defmodule Rumbl.UserSocket do
   end
 
   def connect(_params, _socket), do:  :error
-
-
-  def id(socket), do: "users_socket:#{socket.assing.user_id}"
-
-  # Socket id's are topics that allow you to identify all sockets for a given user:
-  #
-  #     def id(socket), do: "users_socket:#{socket.assigns.user_id}"
-  #
-  # Would allow you to broadcast a "disconnect" event and terminate
-  # all active sockets and channels for a given user:
-  #
-  #     Rumbl.Endpoint.broadcast("users_socket:#{user.id}", "disconnect", %{})
-  #
-  # Returning `nil` makes this socket anonymous.
-  def id(_socket), do: nil
+  def id(socket), do: "users_socket:#{socket.assigns.user_id}"
 end

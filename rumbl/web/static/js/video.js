@@ -16,7 +16,7 @@ let Video = {
     let msgInput     = document.getElementById("msg-input")
     let postButton   = document.getElementById("msg-submit")
     let vidChannel   = socket.channel("videos_c:" + videoId)
-    
+
     postButton.addEventListener('click', e => {
       let payload = {}
       vidChannel.push("new_annotation", payload)
@@ -24,30 +24,50 @@ let Video = {
       msgInput.value = ""
     })
     // join to VideoChannel
-    vidChannel.join()
-    .receive("ok", resp => console.log("joined video channel", resp ))
-    .receive("error", resp => console.log("error: ", resp))
 
     vidChannel.on("new_annotation", (response) =>  {
       this.renderAnnotation(msgContainer, response)
     })
+
+    vidChannel.join()
+    .receive("ok", resp => {
+        this.scheduleMessages(msgContainer, resp.annotations)
+      })
+      .receive("error", reason => console.log("join failed", reason) )
   },
   esc(str){
     let div = document.createElement("div")
     div.appendChild(document.createTextNode(str))
     return div.innerHTML
   },
-
   renderAnnotation(msgContainer, {user, body, at}){
     let template = document.createElement("div")
-
     template.innerHTML = `
     <a href="#" data-seek="${this.esc(at)}">
-    <b>${this.esc(user.username)}</b>: ${this.esc(body)}
+      [${this.formatTime(at)}]
+      <b>${this.esc(user.username)}</b>: ${this.esc(body)}
     </a>
     `
     msgContainer.appendChild(template)
     msgContainer.scrollTop = msgContainer.scrollHeight
+  },
+  scheduleMessages(msgContainer, annotations){
+    setTimeout(() => {
+      let ctime = Player.getCurrentTime()
+      let remaining = this.renderAtTime(annotations, ctime, msgContainer)
+      this.scheduleMessages(msgContainer, remaining)
+    }, 1000)
+  },
+
+  renderAtTime(annotations, seconds, msgContainer){
+    return annotations.filter( ann => {
+      if(ann.at > seconds){
+        return true
+      } else {
+        this.renderAnnotation(msgContainer, ann)
+        return false
+      }
+    })
   }
 }
 export default Video
