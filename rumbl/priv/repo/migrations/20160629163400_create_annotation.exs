@@ -2,7 +2,7 @@ defmodule Rumbl.Repo.Migrations.CreateAnnotation do
   use Ecto.Migration
 
   def change do
-    create table(:annotations, primary_key: false) do
+    create table(:annotations) do
       add :body, :text
       add :at, :integer
       add :user_id, references(:users, on_delete: :nothing)
