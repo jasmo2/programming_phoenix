@@ -17,29 +17,33 @@ let Video = {
     let postButton   = document.getElementById("msg-submit")
     let vidChannel   = socket.channel("videos_c:" + videoId)
 
-    postButton.addEventListener('click', e => {
-      let payload = {}
+    postButton.addEventListener("click", e => {
+      let payload = {body: msgInput.value, at: Player.getCurrentTime()}
       vidChannel.push("new_annotation", payload)
-      .receive("error", e => console.log(e))
+                .receive("error", e => console.log(e) )
       msgInput.value = ""
     })
-    // join to VideoChannel
 
-    vidChannel.on("new_annotation", (response) =>  {
-      this.renderAnnotation(msgContainer, response)
+    msgContainer.addEventListener("click", e => {
+      e.preventDefault()
+      let seconds = e.target.getAttribute("data-seek") ||
+                    e.target.parentNode.getAttribute("data-seek")
+      if(!seconds){ return }
+
+      Player.seekTo(seconds)
+    })
+
+    vidChannel.on("new_annotation", (resp) => {
+      this.renderAnnotation(msgContainer, resp)
     })
 
     vidChannel.join()
-    .receive("ok", resp => {
+      .receive("ok", resp => {
         this.scheduleMessages(msgContainer, resp.annotations)
       })
       .receive("error", reason => console.log("join failed", reason) )
   },
-  esc(str){
-    let div = document.createElement("div")
-    div.appendChild(document.createTextNode(str))
-    return div.innerHTML
-  },
+
   renderAnnotation(msgContainer, {user, body, at}){
     let template = document.createElement("div")
     template.innerHTML = `
@@ -51,6 +55,7 @@ let Video = {
     msgContainer.appendChild(template)
     msgContainer.scrollTop = msgContainer.scrollHeight
   },
+
   scheduleMessages(msgContainer, annotations){
     setTimeout(() => {
       let ctime = Player.getCurrentTime()
@@ -68,6 +73,18 @@ let Video = {
         return false
       }
     })
+  },
+
+  formatTime(at){
+    let date = new Date(null)
+    date.setSeconds(at / 1000)
+    return date.toISOString().substr(14, 5)
+  },
+
+  esc(str){
+    let div = document.createElement("div")
+    div.appendChild(document.createTextNode(str))
+    return div.innerHTML
   }
 }
 export default Video
