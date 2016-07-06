@@ -11,7 +11,7 @@ defmodule Rumbl.VideoChannel do
     video = Repo.get!(Video, video_id)
     annotations = Repo.all(
      from( a in assoc(video, :annotations),
-       where: a.id > ^last_seen_id
+       where: a.id > ^last_seen_id,
        order_by: [asc: a.at, asc: a.id],
        limit: 200,
        preload: [:user]
