@@ -10,9 +10,10 @@ defmodule Rumbl do
       # Start the endpoint when the application starts
       supervisor(Rumbl.Endpoint, []),
       # Start the Ecto repository
-      supervisor(Rumbl.Repo, []),
+      supervisor(Rumbl.InfoSys.Supervisor, []),
       # Here you could define other workers and supervisors as children
-      worker(Rumbl.Counter, [5]), # Counter worker
+      supervisor(Rumbl.Repo, []),
+      # worker(Rumbl.Counter, [5]), # Counter worker
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
