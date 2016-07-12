@@ -44,11 +44,10 @@ defmodule Rumbl.InfoSys do
       :timedout ->
         kill(pid, monitor_ref)
         await_result tail, acc, 0
-      after
-        timeout ->
-          kill pid, monitor_ref
-          await_result tail, acc, 0
-      end
+    after
+      timeout ->
+        kill pid, monitor_ref
+        await_result tail, acc, 0
     end
   end
 
@@ -65,8 +64,6 @@ defmodule Rumbl.InfoSys do
     :erlang.cancel_timer(timer)
     receive do
       :timedout -> :ok
-    end
-
     after
       0 -> :ok
     end
