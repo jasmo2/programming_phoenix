@@ -5,8 +5,8 @@ defmodule Rumbl.VideoChannel do
   alias Rumbl.Annotation
   alias Rumbl.AnnotationView
 
-  def join("videos_c:" <> video_id,  _params, socket) do
-    last_seen_id = _params["last_seen_id"] || 0
+  def join("videos_c:" <> video_id,  params, socket) do
+    last_seen_id = params["last_seen_id"] || 0
     video_id = String.to_integer(video_id)
     video = Repo.get!(Video, video_id)
     annotations = Repo.all(
@@ -22,9 +22,8 @@ defmodule Rumbl.VideoChannel do
   end
 
 
-  def handle_in("new_annotation", params, socket) do
-     user = Rumbl.Repo.get(User, socket.assigns.user_id)
-
+  def handle_in("new_annotation", params, user, socket) do
+    #  user = Rumbl.Repo.get(User, socket.assigns.user_id)
      changeset =
        user
        |> build_assoc(:annotations, video_id: socket.assigns.video_id)
@@ -32,16 +31,38 @@ defmodule Rumbl.VideoChannel do
 
      case Repo.insert(changeset) do
        {:ok, annotation} ->
-         broadcast! socket, "new_annotation", %{
-           id: annotation.id,
-           user: Rumbl.UserView.render("user.json", %{user: user}),
-           body: annotation.body,
-           at: annotation.at
-         }
+         broadcast_annotation socket, annotation
+         Task.start_link(fn -> compute_additional_info(annotation, socket) end)
          {:reply, :ok, socket}
 
        {:error, changeset} ->
          {:reply, {:error, %{errors: changeset}}, socket}
      end
    end
+
+  defp broadcast_annotation(socket, annotation) do
+    annotation = Repo.preload(annotation,:user)
+    render_ann = Phoenix.View.render(AnnotationView, "annotation.json",
+    %{
+        annotation: annotation
+    })
+    broadcast!(socket, "new_annotation", render_ann)
+  end
+
+  defp compute_additional_info(ann,socket) do
+    for result <- Rumbl.InfoSys.compute(ann.body, limit: 1, timeout: 10_000) do
+      attrs = %{url: result.url, body: result.text, at: ann.at}
+      info_changeset = Repo.get_by!(User, username: result.backend)
+      |> build_assoc(:annotations, video_id: ann.video_id)
+      |> Annotation.changeset(attrs)
+
+      case Repo.insert(info_changeset) do
+        {:ok, info_ann} ->
+          broadcast_annotation(socket,info_ann)
+        {:error, _changeset}  ->
+          :ignore
+      end
+    end
+
+  end
 end
